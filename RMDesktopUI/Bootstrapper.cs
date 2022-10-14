@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.Helpers;
 using RMDesktopUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace RMDesktopUI
 {
@@ -18,6 +20,14 @@ namespace RMDesktopUI
         public Bootstrapper()
         {
             Initialize();
+
+            // The following snippet is taken from the following link: https://stackoverflow.com/questions/30631522/caliburn-micro-support-for-passwordbox
+            // To support the PasswordBox
+            ConventionManager.AddElementConvention<PasswordBox>(
+                PasswordBoxHelper.BoundPasswordProperty,
+                "Password",
+                "PasswordChanged"
+            );
         }
 
         protected override void Configure()
@@ -29,7 +39,11 @@ namespace RMDesktopUI
             // the WindowManager and EventAggregator to avoid unexpected behaviours when communicating.
             _container
                 .Singleton<IWindowManager, WindowManager>()
-                .Singleton<IEventAggregator, EventAggregator>();
+                .Singleton<IEventAggregator, EventAggregator>()
+                .Singleton<IApiHelper, ApiHelper>();
+
+            // Register Services here
+
 
             // Here we're using Reflection in order to tie the ShellViewModel to the ShellView
             GetType().Assembly.GetTypes()
