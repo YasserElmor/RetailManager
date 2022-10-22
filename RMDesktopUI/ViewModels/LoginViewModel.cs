@@ -1,10 +1,7 @@
 ﻿using Caliburn.Micro;
-using RMDesktopUI.Helpers;
-using RMDesktopUI.Models;
+using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
@@ -78,7 +75,7 @@ namespace RMDesktopUI.ViewModels
                 ErrorMessage = "";
                 AuthenticatedUser result = await _apiHelper.Authenticate(Username, Password);
 
-                // in its current state, the ApiHelper's Authenticate method would return a response of type AuthenticatedUser if the input data is valid
+                await _apiHelper.GetLoggedInUserModel(result.Access_Token);
             }
             catch (Exception)
             {
