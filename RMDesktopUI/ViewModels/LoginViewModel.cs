@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.EventModels;
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Models;
 using System;
@@ -9,10 +10,12 @@ namespace RMDesktopUI.ViewModels
     public class LoginViewModel : Screen
     {
         private readonly IApiHelper _apiHelper;
+        private readonly IEventAggregator _events;
 
-        public LoginViewModel(IApiHelper apiHelper)
+        public LoginViewModel(IApiHelper apiHelper, IEventAggregator events)
         {
             _apiHelper = apiHelper;
+            _events = events;
         }
 
         private string _username;
@@ -76,6 +79,8 @@ namespace RMDesktopUI.ViewModels
                 AuthenticatedUser result = await _apiHelper.Authenticate(Username, Password);
 
                 await _apiHelper.GetLoggedInUserModel(result.Access_Token);
+
+                await _events.PublishOnUIThreadAsync(new LogOnEvent());
             }
             catch (Exception)
             {

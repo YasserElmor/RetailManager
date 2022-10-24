@@ -1,22 +1,34 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.EventModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
 {
-    public class ShellViewModel: Conductor<object>
+    public class ShellViewModel: Conductor<object>, IHandle<LogOnEvent>
     {
-        private readonly LoginViewModel _loginVM;
+        private SalesViewModel _salesVM;
+        private SimpleContainer _container;
+        private IEventAggregator _events;
 
-        public ShellViewModel(LoginViewModel loginVM)
+        public ShellViewModel(IEventAggregator events, SalesViewModel salesVM,
+            SimpleContainer container)
         {
-            // here we're injecting the LoginViewModel instance through simple container
-            // as we registered all ViewModels on the container earlier through reflection
-            _loginVM = loginVM;
-            ActivateItemAsync(_loginVM);
+            _events = events;
+            _salesVM = salesVM;
+            _container = container;
+
+            _events.SubscribeOnPublishedThread(this);
+            ActivateItemAsync(_container.GetInstance<LoginViewModel>());
+        }
+
+        public async Task HandleAsync(LogOnEvent message, CancellationToken cancellationToken)
+        {
+            await ActivateItemAsync(_salesVM);
         }
     }
 }
