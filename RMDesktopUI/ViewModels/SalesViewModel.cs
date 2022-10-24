@@ -1,13 +1,36 @@
 ﻿using Caliburn.Micro;
+using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Models;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-        private BindingList<string> _products;
+        private IProductEndpoint _productEndpoint;
+        public SalesViewModel(IProductEndpoint productEndpoint)
+        {
+            _productEndpoint = productEndpoint;
+        }
 
-        public BindingList<string> Products
+        // since we can't make the constructor asynchronous to fetch products on instantiation,
+        // we'll have to use a lifecycle hook (OnViewLoaded) to trigger the LoadProducts method
+        // as soon as the view's Loaded event is fired
+        protected override async void OnViewLoaded(object view)
+        {
+            base.OnViewLoaded(view);
+            await LoadProducts();
+        }
+        private async Task LoadProducts()
+        {
+            var productsList = await _productEndpoint.GetAllAsync();
+            Products = new BindingList<ProductModel>(productsList);
+        }
+
+        private BindingList<ProductModel> _products;
+
+        public BindingList<ProductModel> Products
         {
             get { return _products; }
             set
@@ -17,9 +40,9 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private BindingList<string> _cart;
+        private BindingList<ProductModel> _cart;
 
-        public BindingList<string> Cart
+        public BindingList<ProductModel> Cart
         {
             get { return _cart; }
             set
@@ -86,7 +109,12 @@ namespace RMDesktopUI.ViewModels
 
         }
 
-        public bool RemoveFromCart
+        public void RemoveFromCart()
+        {
+
+        }
+
+        public bool CanRemoveFromCart
         {
             get
             {
@@ -96,11 +124,6 @@ namespace RMDesktopUI.ViewModels
 
                 return output;
             }
-        }
-
-        public void CanRemoveFromCart()
-        {
-
         }
 
         public bool CanCheckOut

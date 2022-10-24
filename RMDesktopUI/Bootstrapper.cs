@@ -43,8 +43,8 @@ namespace RMDesktopUI
                 .Singleton<ILoggedInUserModel, LoggedInUserModel>()
                 .Singleton<IApiHelper, ApiHelper>();
 
-            // Register Services here
-
+            _container
+                .PerRequest<IProductEndpoint, ProductEndpoint>();
 
             // Here we're using Reflection in order to tie the ShellViewModel to the ShellView
             GetType().Assembly.GetTypes()
