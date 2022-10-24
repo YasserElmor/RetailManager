@@ -18,6 +18,8 @@ namespace RMDesktopUI.Library.Api
             InitializeClient();
         }
 
+        public HttpClient ApiClient => _apiClient;
+
         private void InitializeClient()
         {
             _apiClient = new HttpClient
