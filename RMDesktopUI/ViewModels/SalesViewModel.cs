@@ -1,14 +1,16 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Models;
+using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RMDesktopUI.ViewModels
 {
     public class SalesViewModel : Screen
     {
-        private IProductEndpoint _productEndpoint;
+        private readonly IProductEndpoint _productEndpoint;
         public SalesViewModel(IProductEndpoint productEndpoint)
         {
             _productEndpoint = productEndpoint;
@@ -40,9 +42,22 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private BindingList<ProductModel> _cart;
+        private ProductModel _selectedProduct;
 
-        public BindingList<ProductModel> Cart
+        public ProductModel SelectedProduct
+        {
+            get { return _selectedProduct; }
+            set
+            {
+                _selectedProduct = value;
+                NotifyOfPropertyChange(() => SelectedProduct);
+                NotifyOfPropertyChange(() => CanAddToCart);
+            }
+        }
+
+        private BindingList<CartItemModel> _cart = new BindingList<CartItemModel>();
+
+        public BindingList<CartItemModel> Cart
         {
             get { return _cart; }
             set
@@ -52,7 +67,7 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private int _itemQuantity;
+        private int _itemQuantity = 1;
 
         public int ItemQuantity
         {
@@ -61,6 +76,7 @@ namespace RMDesktopUI.ViewModels
             {
                 _itemQuantity = value;
                 NotifyOfPropertyChange(() => ItemQuantity);
+                NotifyOfPropertyChange(() => CanAddToCart);
             }
         }
 
@@ -68,8 +84,9 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                // TODO - Replace with Calculation
-                return "$0.00";
+                decimal subTotal = Cart.Aggregate(0.00M, (acc, item) => acc + (item.Product.RetailPrice * item.QuantityInCart));
+
+                return subTotal.ToString("C");
             }
         }
 
@@ -95,23 +112,50 @@ namespace RMDesktopUI.ViewModels
         {
             get
             {
-                bool output = false;
-
-                // Make sure something is selected
-                // Make sure there is an item quantity
+                // Make sure an item is selected
+                // Make sure selected quantity is greater than zero
+                // Make sure there is enough quantity in stock
+                bool validItemQuantity = ItemQuantity > 0;
+                bool validStockQuantity = SelectedProduct?.QuantityInStock >= ItemQuantity;
+                bool output = validItemQuantity && validStockQuantity;
 
                 return output;
             }
         }
-        
+
         public void AddToCart()
         {
+            CartItemModel item = Cart.FirstOrDefault(i => i.Product == SelectedProduct);
 
+
+            if (item != null)
+            {
+                item.QuantityInCart += ItemQuantity;
+                
+                // we're removing and re-adding the item so that the cart is notified of the change in quantity to change the display
+                Cart.Remove(item);
+                Cart.Add(item);
+            }
+            else
+            {
+                item = new CartItemModel()
+                {
+                    Product = SelectedProduct,
+                    QuantityInCart = ItemQuantity,
+                };
+
+                Cart.Add(item);
+            }
+
+            SelectedProduct.QuantityInStock -= ItemQuantity;
+            ItemQuantity = 1;
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public void RemoveFromCart()
         {
 
+            NotifyOfPropertyChange(() => SubTotal);
         }
 
         public bool CanRemoveFromCart
