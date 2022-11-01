@@ -1,10 +1,10 @@
-﻿using System;
+﻿using RMDesktopUI.Library.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using RMDesktopUI.Library.Models;
 
 namespace RMDesktopUI.Library.Api
 {
@@ -40,19 +40,20 @@ namespace RMDesktopUI.Library.Api
             });
 
             // we're only passing /Token as we've already established the HttpClient's BaseAddress during initialization
-            using (HttpResponseMessage response = await _apiClient.PostAsync("/Token", data))
-            {
-                if (response.IsSuccessStatusCode)
-                // to access the ReadAsAsync<> Ext. Method, we'll need to install the following package: Microsoft.AspNet.WebApi.Client to RMDesktopUI.Library's References
-                {
-                    var result = await response.Content.ReadAsAsync<AuthenticatedUser>();
-                    return result;
-                }
+            // The using statement that was used here caused unexpected behaviour when using the right credentials after a failed attempt
+            // this issue arised after the ApiHelper was registered as a singleton
+            HttpResponseMessage response = await _apiClient.PostAsync("/Token", data);
 
-                else
-                {
-                    throw new Exception(response.ReasonPhrase);
-                }
+            if (response.IsSuccessStatusCode)
+            // to access the ReadAsAsync<> Ext. Method, we'll need to install the following package: Microsoft.AspNet.WebApi.Client to RMDesktopUI.Library's References
+            {
+                var result = await response.Content.ReadAsAsync<AuthenticatedUser>();
+                return result;
+            }
+
+            else
+            {
+                throw new Exception(response.ReasonPhrase);
             }
         }
 

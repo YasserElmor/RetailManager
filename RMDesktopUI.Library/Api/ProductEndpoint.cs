@@ -19,18 +19,17 @@ namespace RMDesktopUI.Library.Api
 
         public async Task<List<ProductModel>> GetAllAsync()
         {
-            using (HttpResponseMessage response = await _apiClient.GetAsync("/api/Product"))
-            {
-                if (response.IsSuccessStatusCode)
-                {
-                    List<ProductModel> result = await response.Content.ReadAsAsync<List<ProductModel>>();
-                    return result;
-                }
+            HttpResponseMessage response = await _apiClient.GetAsync("/api/Product");
 
-                else
-                {
-                    throw new Exception(response.ReasonPhrase);
-                }
+            if (response.IsSuccessStatusCode)
+            {
+                List<ProductModel> result = await response.Content.ReadAsAsync<List<ProductModel>>();
+                return result;
+            }
+
+            else
+            {
+                throw new Exception(response.ReasonPhrase);
             }
         }
     }
