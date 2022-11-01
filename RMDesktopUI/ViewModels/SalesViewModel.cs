@@ -1,7 +1,7 @@
 ﻿using Caliburn.Micro;
 using RMDesktopUI.Library.Api;
+using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
-using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,9 +11,11 @@ namespace RMDesktopUI.ViewModels
     public class SalesViewModel : Screen
     {
         private readonly IProductEndpoint _productEndpoint;
-        public SalesViewModel(IProductEndpoint productEndpoint)
+        private readonly IConfigHelper _configHelper;
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
         {
             _productEndpoint = productEndpoint;
+            _configHelper = configHelper;
         }
 
         // since we can't make the constructor asynchronous to fetch products on instantiation,
@@ -80,33 +82,31 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        public string SubTotal
-        {
-            get
-            {
-                decimal subTotal = Cart.Aggregate(0.00M, (acc, item) => acc + (item.Product.RetailPrice * item.QuantityInCart));
+        public string SubTotal => CalculateSubTotal().ToString("C");
 
-                return subTotal.ToString("C");
-            }
+        private decimal CalculateSubTotal()
+        {
+            decimal subTotal = Cart.Aggregate(0.00M, (acc, item) => acc + (item.Product.RetailPrice * item.QuantityInCart));
+
+            return subTotal;
         }
 
-        public string Tax
+        public string Tax => CalculateTax().ToString("C");
+
+        private decimal CalculateTax()
         {
-            get
+            decimal taxRate = _configHelper.GetTaxRate() / 100;
+            decimal taxAmount = Cart.Aggregate(0.00M, (acc, item) =>
             {
-                // TODO - Replace with Calculation
-                return "$0.00";
-            }
+                if (item.Product.IsTaxable)
+                    acc += item.Product.RetailPrice * item.QuantityInCart * taxRate;
+                return acc;
+            });
+
+            return taxAmount;
         }
 
-        public string Total
-        {
-            get
-            {
-                // TODO - Replace with Calculation
-                return "$0.00";
-            }
-        }
+        public string Total => (CalculateSubTotal() + CalculateTax()).ToString("C");
 
         public bool CanAddToCart
         {
@@ -131,7 +131,7 @@ namespace RMDesktopUI.ViewModels
             if (item != null)
             {
                 item.QuantityInCart += ItemQuantity;
-                
+
                 // we're removing and re-adding the item so that the cart is notified of the change in quantity to change the display
                 Cart.Remove(item);
                 Cart.Add(item);
@@ -150,12 +150,16 @@ namespace RMDesktopUI.ViewModels
             SelectedProduct.QuantityInStock -= ItemQuantity;
             ItemQuantity = 1;
             NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
 
         public void RemoveFromCart()
         {
 
             NotifyOfPropertyChange(() => SubTotal);
+            NotifyOfPropertyChange(() => Tax);
+            NotifyOfPropertyChange(() => Total);
         }
 
         public bool CanRemoveFromCart
