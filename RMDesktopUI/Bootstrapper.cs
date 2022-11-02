@@ -46,7 +46,8 @@ namespace RMDesktopUI
                 .Singleton<IApiHelper, ApiHelper>();
 
             _container
-                .PerRequest<IProductEndpoint, ProductEndpoint>();
+                .PerRequest<IProductEndpoint, ProductEndpoint>()
+                .PerRequest<ISaleEndpoint, SaleEndpoint>();
 
             // Here we're using Reflection in order to tie the ShellViewModel to the ShellView
             GetType().Assembly.GetTypes()

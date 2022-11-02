@@ -89,7 +89,7 @@
             <TextBlock x:Name="Total" Text="$0.00"
                    TextAlignment="Right"/>
         </DockPanel>
-        <Button Grid.Row="6" Grid.Column="2" Content="Check Out"
+        <Button x:Name="CheckOut" Grid.Row="6" Grid.Column="2" Content="Check Out"
                 Margin="0 20 0 0" Padding="5"/>
     </Grid>
 </UserControl>

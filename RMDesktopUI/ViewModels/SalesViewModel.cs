@@ -12,10 +12,12 @@ namespace RMDesktopUI.ViewModels
     {
         private readonly IProductEndpoint _productEndpoint;
         private readonly IConfigHelper _configHelper;
-        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper)
+        private readonly ISaleEndpoint _saleEndpoint;
+        public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint)
         {
             _productEndpoint = productEndpoint;
             _configHelper = configHelper;
+            _saleEndpoint = saleEndpoint;
         }
 
         // since we can't make the constructor asynchronous to fetch products on instantiation,
@@ -152,6 +154,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public void RemoveFromCart()
@@ -160,6 +163,7 @@ namespace RMDesktopUI.ViewModels
             NotifyOfPropertyChange(() => SubTotal);
             NotifyOfPropertyChange(() => Tax);
             NotifyOfPropertyChange(() => Total);
+            NotifyOfPropertyChange(() => CanCheckOut);
         }
 
         public bool CanRemoveFromCart
@@ -174,20 +178,22 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        public bool CanCheckOut
+        public bool CanCheckOut => Cart.Count > 0;
+
+        public async Task CheckOut()
         {
-            get
+            SaleModel sale = new SaleModel();
+
+            Cart.ToList().ForEach(cartItem =>
             {
-                bool output = false;
+                sale.SaleDetails.Add(new SaleDetailModel
+                {
+                    ProductId = cartItem.Product.Id,
+                    Quantity = cartItem.QuantityInCart
+                });
+            });
 
-                // Make sure there is something in the cart
-
-                return output;
-            }
-        }
-
-        public void CheckOut()
-        {
+            await _saleEndpoint.PostSale(sale);
 
         }
 

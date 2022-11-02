@@ -18,7 +18,8 @@ namespace RMDesktopUI.ViewModels
             _events = events;
         }
 
-        private string _username;
+        //TODO: Remove embedded values before pushing to production
+        private string _username = "elmor.yasser@gmail.com";
         public string Username
         {
             get { return _username; }
@@ -30,7 +31,7 @@ namespace RMDesktopUI.ViewModels
             }
         }
 
-        private string _password;
+        private string _password = "DummyPassword0#";
         public string Password
         {
             get { return _password; }
