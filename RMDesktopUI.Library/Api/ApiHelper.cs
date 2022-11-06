@@ -61,6 +61,8 @@ namespace RMDesktopUI.Library.Api
         {
             _apiClient.DefaultRequestHeaders.Accept.Clear();
             _apiClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            // removing old authorization headers in case a user was logged in and then logged out
+            _apiClient.DefaultRequestHeaders.Remove("Authorization");
             _apiClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 
             using (HttpResponseMessage response = await _apiClient.GetAsync("/api/User"))
