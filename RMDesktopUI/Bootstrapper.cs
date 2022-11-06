@@ -1,8 +1,10 @@
-﻿using Caliburn.Micro;
+﻿using AutoMapper;
+using Caliburn.Micro;
 using RMDesktopUI.Helpers;
 using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
+using RMDesktopUI.Models;
 using RMDesktopUI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -33,6 +35,10 @@ namespace RMDesktopUI
 
         protected override void Configure()
         {
+            IMapper mapper = ConfigureAutoMapper();
+
+            _container.Instance(mapper);
+
             _container.Instance(_container);
 
             // Here we're using Singleton to ensure that only a single instance of the following classes is instantiated during the lifetime of the application
@@ -56,6 +62,18 @@ namespace RMDesktopUI
                 .ToList()
                 .ForEach(viewModelType => _container.RegisterPerRequest(viewModelType, viewModelType.ToString(), viewModelType));
 
+        }
+
+        private static IMapper ConfigureAutoMapper()
+        {
+            var mapperConfig = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<ProductModel, ProductDisplayModel>();
+                cfg.CreateMap<CartItemModel, CartItemDisplayModel>();
+            });
+
+            var mapper = mapperConfig.CreateMapper();
+            return mapper;
         }
 
         protected override void OnStartup(object sender, StartupEventArgs e)
