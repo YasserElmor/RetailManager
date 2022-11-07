@@ -29,14 +29,7 @@ namespace RMDataManager.Services
 
             SaleData saleDataAccess = new SaleData();
 
-            saleDataAccess.SaveSale(dbSale);
-            int SaleId = saleDataAccess.GetSaleId(dbSale);
-
-            dbSaleDetails.ForEach(detail =>
-            {
-                detail.SaleId = SaleId;
-                saleDataAccess.SaveSaleDetail(detail);
-            });
+            saleDataAccess.SaveSaleInTransaction(dbSale, dbSaleDetails);
         }
 
 
