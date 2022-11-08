@@ -13,7 +13,7 @@ namespace RMDataManager.Library.DataAccess
 
             var p = new { Id };
 
-            List<UserModel> data = sql.LoadData<UserModel, dynamic>("dbo.spUserLookup", p, "RMData");
+            List<UserModel> data = sql.LoadData<UserModel, dynamic>("dbo.spUser_Lookup", p, "RMData");
 
             return data;
         }

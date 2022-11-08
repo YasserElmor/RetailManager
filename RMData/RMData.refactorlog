@@ -21,4 +21,11 @@
     <Property Name="ParentElementType" Value="SqlSchema" />
     <Property Name="NewName" Value="[spProductGetById]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="617b5f22-3763-437d-95d3-e0b317aa6ce0" ChangeDateTime="11/08/2022 09:59:02">
+    <Property Name="ElementName" Value="[dbo].[spInventoryInsert]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[spInventory_Insert]" />
+  </Operation>
 </Operations>

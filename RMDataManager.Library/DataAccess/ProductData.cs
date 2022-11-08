@@ -12,7 +12,7 @@ namespace RMDataManager.Library.DataAccess
             // TODO: set up AutoFac for DI, and code against interfaces instead of concrete classes
             SqlDataAccess sql = new SqlDataAccess();
 
-            List<ProductModel> data = sql.LoadData<ProductModel, dynamic>("dbo.spProductGetAll", new { }, "RMData");
+            List<ProductModel> data = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetAll", new { }, "RMData");
 
             return data;
         }
@@ -23,7 +23,7 @@ namespace RMDataManager.Library.DataAccess
 
             var parameters = new { Id };
 
-            List<ProductModel> data = sql.LoadData<ProductModel, dynamic>("dbo.spProductGetById", parameters, "RMData");
+            List<ProductModel> data = sql.LoadData<ProductModel, dynamic>("dbo.spProduct_GetById", parameters, "RMData");
 
             ProductModel product = data.SingleOrDefault(p => p.Id == Id);
 

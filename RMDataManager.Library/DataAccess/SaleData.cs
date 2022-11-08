@@ -14,15 +14,15 @@ namespace RMDataManager.Library.DataAccess
             try
             {
                 sql.StartTransaction("RMData");
-                sql.SaveDataInTransaction("dbo.spSaleInsert", sale);
+                sql.SaveDataInTransaction("dbo.spSale_Insert", sale);
 
                 var p = new { sale.CashierId, sale.SaleDate };
-                sale.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSaleLookup", p).SingleOrDefault();
+                sale.Id = sql.LoadDataInTransaction<int, dynamic>("dbo.spSale_Lookup", p).SingleOrDefault();
 
                 saleDetails.ForEach(detail =>
                 {
                     detail.SaleId = sale.Id;
-                    sql.SaveDataInTransaction("dbo.spSaleDetailInsert", detail);
+                    sql.SaveDataInTransaction("dbo.spSaleDetail_Insert", detail);
                 });
 
                 sql.CommitTransaction();
@@ -32,6 +32,15 @@ namespace RMDataManager.Library.DataAccess
                 sql.RollbackTransaction();
                 throw;
             }
+        }
+
+        public List<SaleReportModel> GetSaleReport()
+        {
+            SqlDataAccess sql = new SqlDataAccess();
+
+            var output = sql.LoadData<SaleReportModel, dynamic>("dbo.spSale_SaleReport", new { }, "RMData");
+
+            return output;
         }
     }
 }
