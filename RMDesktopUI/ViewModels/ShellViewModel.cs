@@ -30,6 +30,11 @@ namespace RMDesktopUI.ViewModels
             await TryCloseAsync();
         }
 
+        public async Task UserManagementAsync()
+        {
+            await ActivateItemAsync(_container.GetInstance<UserDisplayViewModel>());
+        }
+
         public bool IsLoggedIn => string.IsNullOrWhiteSpace(_user.Token) == false;
 
         public async Task LogOutAsync()

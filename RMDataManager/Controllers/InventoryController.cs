@@ -18,8 +18,6 @@ namespace RMDataManager.Controllers
             return inventory;
         }
 
-        const string cashier = "Cashier";
-        const string admin = "Admin";
 
         [Authorize(Roles = "Admin")]
         public void Post(InventoryModel item)

@@ -4,13 +4,12 @@ using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using RMDesktopUI.Models;
+using RMDesktopUI.ViewModels.HelperClasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -20,18 +19,16 @@ namespace RMDesktopUI.ViewModels
         private readonly IConfigHelper _configHelper;
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IMapper _mapper;
-        private readonly StatusInfoViewModel _status;
-        private readonly IWindowManager _window;
+        private readonly IDisplayBox _displayBox;
 
         public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint,
-            IMapper mapper, StatusInfoViewModel status, IWindowManager window)
+            IMapper mapper, IDisplayBox displayBox)
         {
             _productEndpoint = productEndpoint;
             _configHelper = configHelper;
             _saleEndpoint = saleEndpoint;
             _mapper = mapper;
-            _status = status;
-            _window = window;
+            _displayBox = displayBox;
         }
 
         // since we can't make the constructor asynchronous to fetch products on instantiation,
@@ -65,25 +62,9 @@ namespace RMDesktopUI.ViewModels
             }
             catch (Exception ex)
             {
-                if (ex.Message == "Unauthorized")
-                    await DisplayErrorMessageBoxAsync("Unauthorized Access", "You do not have permission to interact with the Sales Page");
+                await _displayBox.DisplayUnauthorizedMessageBoxAsync(ex);
 
-                else
-                    await DisplayErrorMessageBoxAsync("Fatal Exception", ex.Message);
-
-
-                async Task DisplayErrorMessageBoxAsync(string header, string message)
-                {
-
-                    dynamic settings = new ExpandoObject();
-                    settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    settings.ResizeMode = ResizeMode.NoResize;
-                    settings.Title = "System Error";
-
-                    _status.UpdateMessage(header, message);
-                    await _window.ShowDialogAsync(_status, null, settings);
-                    await TryCloseAsync();
-                }
+                await TryCloseAsync();
             }
         }
 

@@ -6,6 +6,7 @@ using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using RMDesktopUI.Models;
 using RMDesktopUI.ViewModels;
+using RMDesktopUI.ViewModels.HelperClasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,9 @@ namespace RMDesktopUI
                 .Singleton<IApiHelper, ApiHelper>();
 
             _container
+                .PerRequest<IDisplayBox, DisplayBox>()
                 .PerRequest<IProductEndpoint, ProductEndpoint>()
+                .PerRequest<IUserEndpoint, UserEndpoint>()
                 .PerRequest<ISaleEndpoint, SaleEndpoint>();
 
             // Here we're using Reflection in order to tie the ShellViewModel to the ShellView
