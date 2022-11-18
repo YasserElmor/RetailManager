@@ -4,10 +4,13 @@ using RMDesktopUI.Library.Api;
 using RMDesktopUI.Library.Helpers;
 using RMDesktopUI.Library.Models;
 using RMDesktopUI.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace RMDesktopUI.ViewModels
 {
@@ -17,14 +20,18 @@ namespace RMDesktopUI.ViewModels
         private readonly IConfigHelper _configHelper;
         private readonly ISaleEndpoint _saleEndpoint;
         private readonly IMapper _mapper;
+        private readonly StatusInfoViewModel _status;
+        private readonly IWindowManager _window;
 
         public SalesViewModel(IProductEndpoint productEndpoint, IConfigHelper configHelper, ISaleEndpoint saleEndpoint,
-            IMapper mapper)
+            IMapper mapper, StatusInfoViewModel status, IWindowManager window)
         {
             _productEndpoint = productEndpoint;
             _configHelper = configHelper;
             _saleEndpoint = saleEndpoint;
             _mapper = mapper;
+            _status = status;
+            _window = window;
         }
 
         // since we can't make the constructor asynchronous to fetch products on instantiation,
@@ -33,6 +40,7 @@ namespace RMDesktopUI.ViewModels
         protected override async void OnViewLoaded(object view)
         {
             base.OnViewLoaded(view);
+
             await LoadProducts();
         }
 
@@ -49,9 +57,34 @@ namespace RMDesktopUI.ViewModels
 
         private async Task LoadProducts()
         {
-            var productsList = await _productEndpoint.GetAllAsync();
-            var products = _mapper.Map<List<ProductDisplayModel>>(productsList);
-            Products = new BindingList<ProductDisplayModel>(products);
+            try
+            {
+                var productsList = await _productEndpoint.GetAllAsync();
+                var products = _mapper.Map<List<ProductDisplayModel>>(productsList);
+                Products = new BindingList<ProductDisplayModel>(products);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "Unauthorized")
+                    await DisplayErrorMessageBoxAsync("Unauthorized Access", "You do not have permission to interact with the Sales Page");
+
+                else
+                    await DisplayErrorMessageBoxAsync("Fatal Exception", ex.Message);
+
+
+                async Task DisplayErrorMessageBoxAsync(string header, string message)
+                {
+
+                    dynamic settings = new ExpandoObject();
+                    settings.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    settings.ResizeMode = ResizeMode.NoResize;
+                    settings.Title = "System Error";
+
+                    _status.UpdateMessage(header, message);
+                    await _window.ShowDialogAsync(_status, null, settings);
+                    await TryCloseAsync();
+                }
+            }
         }
 
         private BindingList<ProductDisplayModel> _products;
