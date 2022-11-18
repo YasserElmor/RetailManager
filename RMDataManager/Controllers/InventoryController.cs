@@ -8,6 +8,7 @@ namespace RMDataManager.Controllers
     [Authorize]
     public class InventoryController : ApiController
     {
+        [Authorize(Roles = "Admin,Manager")]
         public List<InventoryModel> Get()
         {
             InventoryData inventoryDataAccess = new InventoryData();
@@ -17,6 +18,10 @@ namespace RMDataManager.Controllers
             return inventory;
         }
 
+        const string cashier = "Cashier";
+        const string admin = "Admin";
+
+        [Authorize(Roles = "Admin")]
         public void Post(InventoryModel item)
         {
             InventoryData inventoryDataAccess = new InventoryData();
