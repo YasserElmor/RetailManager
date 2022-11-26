@@ -31,7 +31,7 @@ namespace RMDataManager.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        [Route("Admin/GetAllUsers")]
+        [Route("api/User/Admin/GetAllUsers")]
         public async Task<List<ApplicationUserModel>> GetAllUsersAsync()
         {
             using (var context = new ApplicationDbContext())
@@ -65,5 +65,45 @@ namespace RMDataManager.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        [Route("api/User/Admin/GetAllRoles")]
+        public async Task<Dictionary<string, string>> GetAllRolesAsync()
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                var roles = await context.Roles.ToDictionaryAsync(role => role.Id, role => role.Name);
+
+                return roles;
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("api/User/Admin/AddRole")]
+        public async Task AddRoleAsync(UserRolePairModel userRole)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                var userStore = new UserStore<ApplicationUser>(context);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                await userManager.AddToRoleAsync(userRole.UserId, userRole.RoleName);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        [Route("api/User/Admin/RemoveRole")]
+        public async Task RemoveRoleAsync(UserRolePairModel userRole)
+        {
+            using (var context = new ApplicationDbContext())
+            {
+                var userStore = new UserStore<ApplicationUser>(context);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                await userManager.RemoveFromRoleAsync(userRole.UserId, userRole.RoleName);
+            }
+        }
     }
 }
