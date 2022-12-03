@@ -8,8 +8,8 @@ namespace RMDesktopUI.Library.Api
 {
     public class UserEndpoint : IUserEndpoint
     {
-        private IApiHelper _apiHelper;
-        private HttpClient _apiClient;
+        private readonly IApiHelper _apiHelper;
+        private readonly HttpClient _apiClient;
 
         public UserEndpoint(IApiHelper apiHelper)
         {
